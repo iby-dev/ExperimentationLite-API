@@ -1,9 +1,9 @@
-﻿using MongoDB.Driver;
+﻿using LiteDB;
 
 namespace ExperimentationLite.Domain
 {
     public interface IDataContext
     {
-        IMongoDatabase Database { get; set; }
+        LiteDatabase Database { get; set; }
     }
 }

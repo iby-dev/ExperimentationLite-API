@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System;
+using Autofac;
 using Experimentation.Persistence.Repositories;
 using ExperimentationLite.Domain;
 using ExperimentationLite.Domain.Entities;
@@ -13,7 +14,7 @@ namespace Experimentation.Persistence.Ioc
             builder.RegisterType<DataContext>().As<IDataContext>().SingleInstance();
 
             // Dont usually do things this way - was interested in seeing if it would work or not.
-            builder.RegisterType<BaseRepository<Feature>>().As<IRepository<Feature,string>>();
+            builder.RegisterType<BaseRepository<Feature>>().As<IRepository<Feature,Guid>>();
             builder.RegisterType<FeaturesRepository>().As<BaseRepository<Feature>>();
 
             // below is usual way!

@@ -1,7 +1,6 @@
-﻿using System.Threading.Tasks;
-using ExperimentationLite.Domain;
+﻿using ExperimentationLite.Domain;
 using ExperimentationLite.Domain.Entities;
-using MongoDB.Driver;
+using LiteDB;
 
 namespace Experimentation.Persistence.Repositories
 {
@@ -10,17 +9,23 @@ namespace Experimentation.Persistence.Repositories
         private const string CollectionName = "Features";
 
         private readonly IDataContext _ctx;
-        protected override IMongoCollection<Feature> Collection => _ctx.Database.GetCollection<Feature>(CollectionName);
+
+        protected override LiteCollection<Feature> Collection => _ctx.Database.GetCollection<Feature>(CollectionName);
 
         public FeaturesRepository(IDataContext context)
         {
             _ctx = context;
+
+            if (Collection != null)
+            {
+                Collection.EnsureIndex(x => x.FriendlyId);
+                Collection.EnsureIndex(x => x.Name);
+            }
         }
 
-        public virtual async Task<Feature> GetByNameAsync(string name)
+        public Feature GetByName(string name)
         {
-            return 
-                await Retry(async () => await Collection.Find(x => x.Name.Equals(name)).FirstOrDefaultAsync());
+            return Retry(() => Collection.FindOne(x => x.Name.Equals(name)));
         }
     }
 }

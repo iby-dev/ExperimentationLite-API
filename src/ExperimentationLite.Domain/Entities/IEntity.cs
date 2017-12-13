@@ -1,16 +1,15 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using System;
+using LiteDB;
 
 namespace ExperimentationLite.Domain.Entities
 {
     public interface IEntity<TKey>
     {
         [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
         TKey Id { get; set; }
     }
 
-    public interface IEntity : IEntity<string>
+    public interface IEntity : IEntity<Guid>
     {
         string Name { get; set; }
         int FriendlyId { get; set; }

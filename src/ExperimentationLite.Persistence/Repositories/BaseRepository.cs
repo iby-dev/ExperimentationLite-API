@@ -6,33 +6,36 @@ using System.Threading.Tasks;
 using ExperimentationLite.Domain.Entities;
 using ExperimentationLite.Domain.Exceptions;
 using ExperimentationLite.Domain.Repositories;
-using MongoDB.Bson;
-using MongoDB.Driver;
+using LiteDB;
 using Polly;
 
 namespace Experimentation.Persistence.Repositories
 {
-    public abstract class BaseRepository<TEntity> : IRepository<TEntity, string> where TEntity : IEntity
+    public abstract class BaseRepository<TEntity> : IRepository<TEntity, Guid> where TEntity : IEntity
     {
-        protected abstract IMongoCollection<TEntity> Collection { get; }
+        protected abstract LiteCollection<TEntity> Collection { get; }
 
-        public virtual async Task<TEntity> GetByIdAsync(string id)
+        public virtual TEntity GetById(Guid idToLookFor)
         {
-            return await Retry(async () => await Collection.Find(x => x.Id.Equals(id)).FirstOrDefaultAsync());
+            return Retry(() => Collection.FindById(idToLookFor));
         }
 
-        public virtual async Task<bool> Exists(string id)
+        public virtual TEntity GetByFriendlyId(int idToLookFor)
         {
-            var count =  await Retry(async () => await Collection.CountAsync(x => x.Id.Equals(id)));
-            return count > 0;
+            return Retry(() => Collection.FindOne(x => x.FriendlyId.Equals(idToLookFor)));
         }
 
-        public virtual async Task<TEntity> GetByFriendlyIdAsync(int id)
+        public virtual bool Exists(Guid idToLookFor)
         {
-            return await Retry(async () => await Collection.Find(x => x.FriendlyId.Equals(id)).FirstOrDefaultAsync());
+            return Retry(() =>Collection.Exists(x => x.Id.Equals(idToLookFor)));
         }
 
-        public virtual async Task<TEntity> SaveAsync(TEntity entity)
+        public virtual bool Exists(int idToLookFor)
+        {
+            return Retry(() => Collection.Exists(x => x.FriendlyId.Equals(idToLookFor)));
+        }
+
+        public virtual Guid Save(TEntity entity)
         {
             var isUniqueId = Collection.Count(item => item.FriendlyId == entity.FriendlyId);
             if (isUniqueId > 0)
@@ -46,21 +49,17 @@ namespace Experimentation.Persistence.Repositories
                 throw new NonUniqueValueDetectedException(GetType().FullName, entity.Name);
             }
 
-            if (string.IsNullOrWhiteSpace(entity.Id))
-            {
-                entity.Id = ObjectId.GenerateNewId().ToString();
-            }
-            return await Save(entity);
+            return Retry(() => Collection.Insert(entity));
         }
 
-        public virtual async Task UpdateAsync(TEntity entity)
+        public bool Update(TEntity entity)
         {
-            if (string.IsNullOrWhiteSpace(entity.Id))
+            if (string.IsNullOrWhiteSpace(entity.Id.ToString()))
             {
                 throw new ArgumentNullException($"{nameof(entity.Id)}", "The given entity does not have an id set on it.");
             }
 
-            var original = await Collection.Find(x => x.Id.Equals(entity.Id)).FirstOrDefaultAsync();
+            var original = GetById(entity.Id);
             if (original.FriendlyId != entity.FriendlyId) // Friendly id has changed from original.
             {
                 var isUniqueId = Collection.Count(item => item.FriendlyId == entity.FriendlyId);
@@ -79,39 +78,23 @@ namespace Experimentation.Persistence.Repositories
                 }
             }
 
-            await Save(entity);
+            return Retry(()  => Collection.Update(entity));
         }
 
-        private async Task<TEntity> Save(TEntity entity)
+        public bool Delete(Guid id)
         {
-            return await Retry(async () =>
-            {
-                await Collection.ReplaceOneAsync(
-                    x => x.Id.Equals(entity.Id),
-                    entity,
-                    new UpdateOptions
-                    {
-                        IsUpsert = true
-                    });
-
-                return entity;
-            });
+            return Retry(() => Collection.Delete(id));
         }
 
-        public virtual async Task DeleteAsync(string id)
+        public IEnumerable<TEntity> GetAll()
         {
-            await Retry(async () => await Collection.DeleteOneAsync(x => x.Id.Equals(id)));
-        }
-
-        public virtual async Task<IEnumerable<TEntity>> FindAllAsync(Expression<Func<TEntity, bool>> predicate)
-        {
-            return await Retry(async () => await Collection.Find(predicate).ToListAsync());
+            return Retry(() => Collection.FindAll());
         }
 
         protected virtual TResult Retry<TResult>(Func<TResult> action)
         {
             return Policy
-                .Handle<MongoConnectionException>(i => i.InnerException.GetType() == typeof(IOException))
+                .Handle<LiteException>(i => i.InnerException.GetType() == typeof(Exception))
                 .Retry(3)
                 .Execute(action);
         }
