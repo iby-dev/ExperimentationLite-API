@@ -38,9 +38,9 @@ namespace ExperimentationLite.Api.Controllers
         /// <returns>a list of feature switches.</returns>
         [HttpGet("")]
         [ProducesResponseType(typeof(ListViewModel<Feature>), 200)]
-        public async Task<IActionResult> GetAllFeatures()
+        public IActionResult GetAllFeatures()
         {
-            var allFeatures = await _director.GetAllFeatures();
+            var allFeatures = _director.GetAllFeatures();
             var model = new ListViewModel<Feature>(allFeatures);
             return Ok(model);
         }
@@ -55,11 +55,11 @@ namespace ExperimentationLite.Api.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(ViewModel<Feature>), 200)]
         [ProducesResponseType(typeof(void), 404)]
-        public async Task<IActionResult> GetFeatureByIdAsync(
+        public IActionResult GetFeatureByIdAsync(
             [Required(AllowEmptyStrings = false, ErrorMessage = "The id parameter cannot be null or contain whitespace.")]
-            string id)
+            Guid id)
         {
-            var feature = await _director.GetFeatureById(id);
+            var feature = _director.GetFeatureById(id);
             if (feature == null)
             {
                 return NotFound();
@@ -79,10 +79,9 @@ namespace ExperimentationLite.Api.Controllers
         [HttpGet("{friendlyId:int}")]
         [ProducesResponseType(typeof(ViewModel<Feature>), 200)]
         [ProducesResponseType(typeof(void), 404)]
-        public async Task<IActionResult> GetFeatureByFriendlyId(
-            [Required] [Range(1, int.MaxValue)] int friendlyId)
+        public IActionResult GetFeatureByFriendlyId([Required] [Range(1, int.MaxValue)] int friendlyId)
         {
-            var feature = await _director.GetFeatureByFriendlyId(friendlyId);
+            var feature = _director.GetFeatureByFriendlyId(friendlyId);
             if (feature == null)
             {
                 return NotFound();
@@ -103,11 +102,11 @@ namespace ExperimentationLite.Api.Controllers
         [HttpGet("name/{name}")]
         [ProducesResponseType(typeof(ViewModel<Feature>), 200)]
         [ProducesResponseType(typeof(void), 404)]
-        public async Task<IActionResult> GetFeatureByName(
+        public IActionResult GetFeatureByName(
             [Required(AllowEmptyStrings = false, ErrorMessage = "The name parameter cannot be null or contain whitespace.")]
             string name)
         {
-            var feature = await _director.GetFeatureByName(name);
+            var feature = _director.GetFeatureByName(name);
             if (feature == null)
             {
                 return NotFound();
@@ -135,14 +134,18 @@ namespace ExperimentationLite.Api.Controllers
         [ProducesResponseType(typeof(Feature), 201)]
         [ProducesResponseType(typeof(IDictionary<string, string>), 400)]
         [ProducesResponseType(typeof(string), 500)]
-        public async Task<IActionResult> AddNewFeature([FromBody] BaseFeatureViewModel item)
+        public IActionResult AddNewFeature([FromBody] BaseFeatureViewModel item)
         {
             var mappedFeature = _mapper.Map(item);
 
             try
             {
-                var newlyAddedFeature = await _director.AddNewFeature(mappedFeature);
-                return CreatedAtAction("AddNewFeature", new {id = newlyAddedFeature.Id}, newlyAddedFeature);
+                var idOfNewlyAddedFeature = _director.AddNewFeature(mappedFeature);
+                return CreatedAtAction("AddNewFeature", 
+                    new
+                    {
+                        id = idOfNewlyAddedFeature
+                    }, idOfNewlyAddedFeature);
             }
             catch (NonUniqueValueDetectedException e)
             {
@@ -189,11 +192,11 @@ namespace ExperimentationLite.Api.Controllers
         [ProducesResponseType(typeof(IDictionary<string, string>), 400)]
         [ProducesResponseType(typeof(void), 404)]
         [ProducesResponseType(typeof(string), 500)]
-        public async Task<IActionResult> UpdateExistingFeature([FromBody] FeatureViewModel model)
+        public IActionResult UpdateExistingFeature([FromBody] FeatureViewModel model)
         {
             try
             {
-                var existingFeature = await _director.GetFeatureById(model.Id);
+                var existingFeature = _director.GetFeatureById(model.Id);
                 if (existingFeature == null)
                 {
                     return NotFound();
@@ -203,7 +206,7 @@ namespace ExperimentationLite.Api.Controllers
                 existingFeature.FriendlyId = model.FriendlyId;
                 existingFeature.BucketList = model.BucketList;
 
-                await _director.UpdateFeature(existingFeature);
+                _director.UpdateFeature(existingFeature);
                 return new OkObjectResult("Request processed successfully");
             }
             catch (NonUniqueValueDetectedException e)
@@ -244,19 +247,19 @@ namespace ExperimentationLite.Api.Controllers
         [ProducesResponseType(typeof(void), 204)]
         [ProducesResponseType(typeof(void), 404)]
         [ProducesResponseType(typeof(void), 500)]
-        public async Task<IActionResult> DeleteFeature(
+        public IActionResult DeleteFeature(
             [Required(AllowEmptyStrings = false, ErrorMessage = "The name parameter cannot be null or contain whitespace.")]
-            string id)
+            Guid id)
         {
             try
             {
-                var result = await _director.FeatureExistsById(id);
+                var result = _director.FeatureExistsById(id);
                 if (result == false)
                 {
                     return NotFound();
                 }
 
-                await _director.DeleteFeature(id);
+                _director.DeleteFeature(id);
                 return new NoContentResult();
             }
             catch (Exception e)
@@ -283,9 +286,9 @@ namespace ExperimentationLite.Api.Controllers
         [HttpGet("{id}/bucket")]
         [ProducesResponseType(typeof(List<string>), 200)]
         [ProducesResponseType(typeof(void), 404)]
-        public async Task<IActionResult> GetBucketByFeatureId(string id)
+        public IActionResult GetBucketByFeatureId(Guid id)
         {
-            var feature = await _director.GetFeatureById(id);
+            var feature = _director.GetFeatureById(id);
             if (feature == null)
             {
                 return NotFound();
@@ -308,9 +311,9 @@ namespace ExperimentationLite.Api.Controllers
         [HttpGet("{id}/bucket/{bucketId}")]
         [ProducesResponseType(typeof(bool), 200)]
         [ProducesResponseType(typeof(void), 404)]
-        public async Task<IActionResult> QueryFeatureBucketByFeatureId(string id, string bucketId)
+        public IActionResult QueryFeatureBucketByFeatureId(Guid id, string bucketId)
         {
-            var feature = await _director.GetFeatureById(id);
+            var feature = _director.GetFeatureById(id);
             if (feature == null)
             {
                 return NotFound();
@@ -335,9 +338,9 @@ namespace ExperimentationLite.Api.Controllers
         [HttpPut("{id}/bucket/{bucketId}")]
         [ProducesResponseType(typeof(string), 200)]
         [ProducesResponseType(typeof(void), 404)]
-        public async Task<IActionResult> AddIdToFeatureBucket(string id, string bucketId)
+        public IActionResult AddIdToFeatureBucket(Guid id, string bucketId)
         {
-            var feature = await _director.GetFeatureById(id);
+            var feature = _director.GetFeatureById(id);
             if (feature == null)
             {
                 return NotFound();
@@ -345,7 +348,7 @@ namespace ExperimentationLite.Api.Controllers
 
             feature.BucketList.Add(bucketId);
 
-            await _director.UpdateFeature(feature);
+            _director.UpdateFeature(feature);
             return new OkObjectResult("Request processed successfully");
         }
 
@@ -360,9 +363,9 @@ namespace ExperimentationLite.Api.Controllers
         [HttpDelete("{id}/bucket/{bucketId}")]
         [ProducesResponseType(typeof(string), 200)]
         [ProducesResponseType(typeof(void), 404)]
-        public async Task<IActionResult> RemoveIdFromFeatureBucket(string id, string bucketId)
+        public IActionResult RemoveIdFromFeatureBucket(Guid id, string bucketId)
         {
-            var feature = await _director.GetFeatureById(id);
+            var feature = _director.GetFeatureById(id);
             if (feature == null)
             {
                 return NotFound();
@@ -370,7 +373,7 @@ namespace ExperimentationLite.Api.Controllers
 
             feature.BucketList.Remove(bucketId);
 
-            await _director.UpdateFeature(feature);
+            _director.UpdateFeature(feature);
             return new OkObjectResult("Request processed successfully");
         }
     }
