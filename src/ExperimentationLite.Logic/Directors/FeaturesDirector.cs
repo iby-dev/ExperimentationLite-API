@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Experimentation.Persistence.Repositories;
 using ExperimentationLite.Domain.Entities;
@@ -14,44 +15,44 @@ namespace ExperimentationLite.Logic.Directors
             _repository = repository as FeaturesRepository;
         }
 
-        public Task<IEnumerable<Feature>> GetAllFeatures()
+        public IEnumerable<Feature> GetAllFeatures()
         {
-            return _repository.FindAllAsync(x => true);
+            return _repository.GetAll();
         }
 
-        public Task<Feature> GetFeatureById(string id)
+        public Feature GetFeatureById(Guid id)
         {
-            return _repository.GetByIdAsync(id);
+            return _repository.GetById(id);
         }
 
-        public Task<bool> FeatureExistsById(string id)
+        public bool FeatureExistsById(Guid id)
         {
             return _repository.Exists(id);
         }
 
-        public Task<Feature> GetFeatureByName(string name)
+        public Feature GetFeatureByName(string name)
         {
-            return _repository.GetByNameAsync(name);
+            return _repository.GetByName(name);
         }
 
-        public Task<Feature> GetFeatureByFriendlyId(int id)
+        public Feature GetFeatureByFriendlyId(int id)
         {
-            return _repository.GetByFriendlyIdAsync(id);
+            return _repository.GetByFriendlyId(id);
         }
 
-        public Task<Feature> AddNewFeature(Feature toAdd)
+        public Guid AddNewFeature(Feature toAdd)
         {
-            return _repository.SaveAsync(toAdd);
+            return _repository.Save(toAdd);
         }
 
-        public Task UpdateFeature(Feature toUpdate)
+        public bool UpdateFeature(Feature toUpdate)
         {
-             return _repository.UpdateAsync(toUpdate);
+             return _repository.Update(toUpdate);
         }
 
-        public Task DeleteFeature(string id)
+        public bool DeleteFeature(Guid id)
         {
-            return _repository.DeleteAsync(id);
+            return _repository.Delete(id);
         }
     }
 }
