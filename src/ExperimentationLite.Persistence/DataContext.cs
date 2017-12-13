@@ -12,7 +12,7 @@ namespace Experimentation.Persistence
 
         public DataContext(IOptions<DataContextSettings> options)
         {
-            Database = new LiteDatabase(options.Value.Database);
+            Database = new LiteDatabase(options.Value.ConnectionString);
         }
 
         public void Dispose() => Database?.Dispose();

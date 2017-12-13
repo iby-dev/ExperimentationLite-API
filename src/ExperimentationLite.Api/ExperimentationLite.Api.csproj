@@ -14,14 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Database\ExperimentsDB.db" />
     <None Remove="Properties\PublishProfiles\FolderProfile.pubxml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Database\ExperimentsDB.db">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -65,6 +58,15 @@
   <ItemGroup>
     <ProjectReference Include="..\ExperimentationLite.Domain\ExperimentationLite.Domain.csproj" />
     <ProjectReference Include="..\ExperimentationLite.Logic\ExperimentationLite.Logic.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="Database\ExperimentsDB.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Database\ExperimentsDB.db">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
