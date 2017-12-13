@@ -14,7 +14,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Database\ExperimentsDB.db" />
     <None Remove="Properties\PublishProfiles\FolderProfile.pubxml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Database\ExperimentsDB.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
