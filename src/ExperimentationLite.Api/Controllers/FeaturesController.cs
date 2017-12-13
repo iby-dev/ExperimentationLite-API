@@ -206,7 +206,7 @@ namespace ExperimentationLite.Api.Controllers
                 existingFeature.BucketList = model.BucketList;
 
                 _director.UpdateFeature(existingFeature);
-                return new OkObjectResult("Request processed successfully");
+                return new OkObjectResult("Request processed successfully.");
             }
             catch (NonUniqueValueDetectedException e)
             {
@@ -348,7 +348,7 @@ namespace ExperimentationLite.Api.Controllers
             feature.BucketList.Add(bucketId);
 
             _director.UpdateFeature(feature);
-            return new OkObjectResult("Request processed successfully");
+            return new OkObjectResult("Request processed successfully.");
         }
 
         /// <summary>
@@ -373,7 +373,31 @@ namespace ExperimentationLite.Api.Controllers
             feature.BucketList.Remove(bucketId);
 
             _director.UpdateFeature(feature);
-            return new OkObjectResult("Request processed successfully");
+            return new OkObjectResult("Request processed successfully.");
+        }
+
+        /// <summary>
+        /// Removes all identifiers from the feature switches bucket list.
+        /// </summary>
+        /// <param name="id">The id of the feature switch to retrieve.</param>
+        /// <returns>a status message based on request outcome.</returns>
+        /// <response code="200">Bucket list cleared successfully.</response>
+        /// <response code="404">Feature switch not found.</response>
+        [HttpDelete("{id}/bucket/clear")]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(typeof(void), 404)]
+        public IActionResult ClearBucketOnFeature(Guid id)
+        {
+            var feature = _director.GetFeatureById(id);
+            if (feature == null)
+            {
+                return NotFound();
+            }
+
+            feature.BucketList.Clear();
+
+            _director.UpdateFeature(feature);
+            return new OkObjectResult("Request processed successfully.");
         }
     }
 }
