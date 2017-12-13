@@ -1,5 +1,5 @@
 # ExperimentationLite-API
-A fork of the [Experimentation-Api](https://github.com/iby-dev/Experimentation-API) that uses LiteDb instead of MongoDb - making this version of [Experimentation-Api](https://github.com/iby-dev/Experimentation-API) a proper stateful self enclosed microservice. 
+A fork of the [Experimentation-Api](https://github.com/iby-dev/Experimentation-API) that uses LiteDb instead of MongoDb - making this version of the [Experimentation-Api](https://github.com/iby-dev/Experimentation-API) a proper stateful self enclosed microservice. 
 
 A proper write up will be added soon but for now this new api functions and behaves exactly the same as the [Experimentation-Api](https://github.com/iby-dev/Experimentation-API). 
 
