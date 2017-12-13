@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
 using ExperimentationLite.Domain.Entities;
 using ExperimentationLite.Domain.Exceptions;
 using ExperimentationLite.Domain.Repositories;

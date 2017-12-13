@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Experimentation.Persistence.Repositories;
 using ExperimentationLite.Domain.Entities;
 

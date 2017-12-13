@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using ExperimentationLite.Domain.Entities;
 
 namespace ExperimentationLite.Logic.Directors

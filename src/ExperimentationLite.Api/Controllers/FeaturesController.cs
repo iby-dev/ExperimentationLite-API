@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
 using ExperimentationLite.Domain.Entities;
 using ExperimentationLite.Domain.Exceptions;
 using ExperimentationLite.Logic.Directors;
